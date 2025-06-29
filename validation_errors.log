@@ -1,0 +1,164 @@
+2025-06-29 23:46:38,247 - radio_act_validator - ERROR - ZIPファイルの展開に失敗: File is not a zip file
+2025-06-29 23:46:38,360 - radio_act_validator - ERROR - ダウンロード失敗: 404 Client Error: Not Found for url: https://www.japaneselawtranslation.go.jp/common/data/law.xml
+2025-06-29 23:50:46,523 - radio_act_validator - ERROR - DTDバリデーション中に予期しないエラー: Start tag expected, '<' not found, line 1, column 1 (radio_act_en_temp.xml, line 1)
+2025-06-29 23:50:46,524 - radio_act_validator - ERROR - DTDバリデーション失敗: DTDバリデーション中に予期しないエラー: Start tag expected, '<' not found, line 1, column 1 (radio_act_en_temp.xml, line 1)
+2025-06-29 23:52:46,018 - radio_act_validator - ERROR - XSDバリデーションエラー: failed validating <Element 'DataRoot' at 0x1039f3920> with XMLSchema10(namespace=''):
+
+Reason: 'DataRoot' is not an element of the schema
+
+Instance type: <class 'xml.etree.ElementTree.Element'>
+
+Instance:
+
+  <DataRoot>
+    <Result>
+      <Code>0</Code>
+      <Message />
+    </Result>
+    <ApplData>
+      <LawId>325AC0000000131</LawId>
+      <LawNum />
+      <LawFullText>
+        <Law Lang="ja" Era="Showa" Year="25" Num="131" PromulgateMonth="05" PromulgateDay="02" LawType="Act">
+          <LawNum>昭和二十五年法律第百三十一号</LawNum>
+          <LawBody>
+            <LawTitle Kana="でんぱほう" Abbrev="" AbbrevKana="">電波法</LawTitle>
+            <TOC>
+              <TOCLabel>目次</TOCLabel>
+              <TOCChapter Num="1">
+                <ChapterTitle>第一章　総則</ChapterTitle>
+                <ArticleRange>（第一条―第三条）</ArticleRange>
+              </TOCChapter>
+              <TOCChapter Num="2">
+    ...
+    ...
+  </DataRoot>
+
+Path: /DataRoot
+
+2025-06-29 23:52:46,019 - radio_act_validator - ERROR - XSDバリデーション失敗: XSDバリデーションエラー: failed validating <Element 'DataRoot' at 0x1039f3920> with XMLSchema10(namespace=''):
+
+Reason: 'DataRoot' is not an element of the schema
+
+Instance type: <class 'xml.etree.ElementTree.Element'>
+
+Instance:
+
+  <DataRoot>
+    <Result>
+      <Code>0</Code>
+      <Message />
+    </Result>
+    <ApplData>
+      <LawId>325AC0000000131</LawId>
+      <LawNum />
+      <LawFullText>
+        <Law Lang="ja" Era="Showa" Year="25" Num="131" PromulgateMonth="05" PromulgateDay="02" LawType="Act">
+          <LawNum>昭和二十五年法律第百三十一号</LawNum>
+          <LawBody>
+            <LawTitle Kana="でんぱほう" Abbrev="" AbbrevKana="">電波法</LawTitle>
+            <TOC>
+              <TOCLabel>目次</TOCLabel>
+              <TOCChapter Num="1">
+                <ChapterTitle>第一章　総則</ChapterTitle>
+                <ArticleRange>（第一条―第三条）</ArticleRange>
+              </TOCChapter>
+              <TOCChapter Num="2">
+    ...
+    ...
+  </DataRoot>
+
+Path: /DataRoot
+
+2025-06-29 23:54:10,763 - radio_act_validator - ERROR - DTDバリデーション中に予期しないエラー: Validation failed: no DTD found !, line 2, column 6 (radio_act_en_temp, line 2)
+2025-06-29 23:54:10,763 - radio_act_validator - ERROR - DTDバリデーション失敗: DTDバリデーション中に予期しないエラー: Validation failed: no DTD found !, line 2, column 6 (radio_act_en_temp, line 2)
+2025-06-29 23:57:10,575 - radio_act_validator - ERROR - XSDバリデーションエラー: failed validating {'Lang': 'ja', 'Era': 'Showa', 'Year': '25', 'Num': '131', 'PromulgateMonth': '05', 'PromulgateDay': '02', 'LawType': 'Act'} with XsdAttributeGroup():
+
+Reason: 'Lang' attribute not allowed for element
+
+Schema component:
+
+  <xs:complexType xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:sequence>
+          <xs:element name="LawNum" type="xs:string" />
+          <xs:element name="LawName" type="xs:string" />
+          <xs:element name="LawBody" type="xs:string" />
+      </xs:sequence>
+  </xs:complexType>
+
+Instance type: <class 'xml.etree.ElementTree.Element'>
+
+Instance:
+
+  <Law Lang="ja" Era="Showa" Year="25" Num="131" PromulgateMonth="05" PromulgateDay="02" LawType="Act"><LawNum>昭和二十五年法律第百三十一号</LawNum><LawBody><LawTitle Kana="でんぱほう" Abbrev="" AbbrevKana="">電波法</LawTitle>
+      <TOC>
+        <TOCLabel>目次</TOCLabel>
+        <TOCChapter Num="1">
+          <ChapterTitle>第一章　総則</ChapterTitle>
+          <ArticleRange>（第一条―第三条）</ArticleRange>
+        </TOCChapter>
+        <TOCChapter Num="2">
+          <ChapterTitle>第二章　無線局の免許等</ChapterTitle>
+          <TOCSection Num="1">
+            <SectionTitle>第一節　無線局の免許</SectionTitle>
+            <ArticleRange>（第四条―第二十七条の二十）</ArticleRange>
+          </TOCSection>
+          <TOCSection Num="2">
+            <SectionTitle>第二節　無線局の登録</SectionTitle>
+            <ArticleRange>（第二十七条の二十一―第二十七条の三十七）</ArticleRange>
+          </TOCSection>
+          <TOCSection Num="3">
+            <SectionTitle>第三節　無線局の開設に関するあつせん等</SectionTitle>
+            <ArticleRange>（第二十七条の三十八・第二十七条の三十九）</ArticleRange>
+    ...
+    ...
+  </Law>
+
+Path: /Law
+
+2025-06-29 23:57:10,576 - radio_act_validator - ERROR - XSDバリデーション失敗: XSDバリデーションエラー: failed validating {'Lang': 'ja', 'Era': 'Showa', 'Year': '25', 'Num': '131', 'PromulgateMonth': '05', 'PromulgateDay': '02', 'LawType': 'Act'} with XsdAttributeGroup():
+
+Reason: 'Lang' attribute not allowed for element
+
+Schema component:
+
+  <xs:complexType xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:sequence>
+          <xs:element name="LawNum" type="xs:string" />
+          <xs:element name="LawName" type="xs:string" />
+          <xs:element name="LawBody" type="xs:string" />
+      </xs:sequence>
+  </xs:complexType>
+
+Instance type: <class 'xml.etree.ElementTree.Element'>
+
+Instance:
+
+  <Law Lang="ja" Era="Showa" Year="25" Num="131" PromulgateMonth="05" PromulgateDay="02" LawType="Act"><LawNum>昭和二十五年法律第百三十一号</LawNum><LawBody><LawTitle Kana="でんぱほう" Abbrev="" AbbrevKana="">電波法</LawTitle>
+      <TOC>
+        <TOCLabel>目次</TOCLabel>
+        <TOCChapter Num="1">
+          <ChapterTitle>第一章　総則</ChapterTitle>
+          <ArticleRange>（第一条―第三条）</ArticleRange>
+        </TOCChapter>
+        <TOCChapter Num="2">
+          <ChapterTitle>第二章　無線局の免許等</ChapterTitle>
+          <TOCSection Num="1">
+            <SectionTitle>第一節　無線局の免許</SectionTitle>
+            <ArticleRange>（第四条―第二十七条の二十）</ArticleRange>
+          </TOCSection>
+          <TOCSection Num="2">
+            <SectionTitle>第二節　無線局の登録</SectionTitle>
+            <ArticleRange>（第二十七条の二十一―第二十七条の三十七）</ArticleRange>
+          </TOCSection>
+          <TOCSection Num="3">
+            <SectionTitle>第三節　無線局の開設に関するあつせん等</SectionTitle>
+            <ArticleRange>（第二十七条の三十八・第二十七条の三十九）</ArticleRange>
+    ...
+    ...
+  </Law>
+
+Path: /Law
+
+2025-06-29 23:57:10,914 - radio_act_validator - ERROR - DTDバリデーション中に予期しないエラー: failed to load "/var/folders/nc/cvd3vm9d1m313bdnbqvhzl500000gn/T/jstatute.dtd": No such file or directory, line 2, column 71 (radio_act_en_temp, line 2)
+2025-06-29 23:57:10,914 - radio_act_validator - ERROR - DTDバリデーション失敗: DTDバリデーション中に予期しないエラー: failed to load "/var/folders/nc/cvd3vm9d1m313bdnbqvhzl500000gn/T/jstatute.dtd": No such file or directory, line 2, column 71 (radio_act_en_temp, line 2)

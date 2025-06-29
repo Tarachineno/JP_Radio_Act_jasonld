@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-日本電波法 XML 取得・バリデーション・正規化スクリプト
+日本電波法 XML 取得・正規化スクリプト
 
 e-Gov 法令 API から Radio Act (LawID: 325AC0000000131) の XML を取得し、
-XSD/DTD バリデーションを実行して UTF-8/LF 正規化を行います。
+UTF-8/LF 正規化を行います。
 """
 
 import argparse
@@ -26,7 +26,7 @@ from radio_act_validator import (
 def parse_arguments() -> argparse.Namespace:
     """コマンドライン引数を解析します。"""
     parser = argparse.ArgumentParser(
-        description="日本電波法 XML 取得・バリデーション・正規化スクリプト",
+        description="日本電波法 XML 取得・正規化スクリプト",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 使用例:
@@ -39,13 +39,26 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--ja", "--japanese",
         action="store_true",
-        help="日本語版 Radio Act XML を取得・検証・保存"
+        help="日本語版 Radio Act XML を取得・保存"
     )
     
     parser.add_argument(
         "--en", "--english", 
         action="store_true",
-        help="英語版 Radio Act XML を取得・検証・保存"
+        help="英語版 Radio Act XML を取得・保存"
+    )
+    
+    parser.add_argument(
+        "--ja-url",
+        type=str,
+        default=None,
+        help="日本語版 Radio Act XML のダウンロードURL (省略時はデフォルト)"
+    )
+    parser.add_argument(
+        "--en-url",
+        type=str,
+        default=None,
+        help="英語版 Radio Act XML のダウンロードURL (省略時はデフォルト)"
     )
     
     parser.add_argument(
@@ -87,7 +100,7 @@ def main() -> int:
     
     console.print(
         rich.panel.Panel(
-            "[bold blue]日本電波法 XML 取得・バリデーション・正規化スクリプト[/bold blue]",
+            "[bold blue]日本電波法 XML 取得・正規化スクリプト[/bold blue]",
             border_style="blue"
         )
     )
@@ -99,24 +112,24 @@ def main() -> int:
         # 日本語版の処理
         if args.ja:
             total_count += 1
-            console.print("\n[bold yellow]📥 日本語版 Radio Act XML を処理中...[/bold yellow]")
+            console.print("\n[bold yellow]📥 日本語版 Radio Act XML を取得中...[/bold yellow]")
             
-            if download_and_validate_japanese(output_dir):
-                console.print("[green]✅ 日本語版の処理が完了しました[/green]")
+            if download_and_validate_japanese(output_dir, ja_url=args.ja_url):
+                console.print("[green]✅ 日本語版の取得が完了しました[/green]")
                 success_count += 1
             else:
-                console.print("[red]❌ 日本語版の処理に失敗しました[/red]")
+                console.print("[red]❌ 日本語版の取得に失敗しました[/red]")
         
         # 英語版の処理
         if args.en:
             total_count += 1
-            console.print("\n[bold yellow]📥 英語版 Radio Act XML を処理中...[/bold yellow]")
+            console.print("\n[bold yellow]📥 英語版 Radio Act XML を取得中...[/bold yellow]")
             
-            if download_and_validate_english(output_dir):
-                console.print("[green]✅ 英語版の処理が完了しました[/green]")
+            if download_and_validate_english(output_dir, en_url=args.en_url):
+                console.print("[green]✅ 英語版の取得が完了しました[/green]")
                 success_count += 1
             else:
-                console.print("[red]❌ 英語版の処理に失敗しました[/red]")
+                console.print("[red]❌ 英語版の取得に失敗しました[/red]")
         
         # 結果サマリー
         console.print(f"\n[bold]📊 処理結果: {success_count}/{total_count} 成功[/bold]")

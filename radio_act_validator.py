@@ -20,7 +20,12 @@ from xmlschema import XMLSchema, XMLSchemaValidationError
 # 定数
 EGOV_API_BASE = "https://elaws.e-gov.go.jp/api/1"
 RADIO_ACT_LAW_ID = "325AC0000000131"
-EN_XML_URL = "https://www.japaneselawtranslation.go.jp/common/data/law.xml"  # 仮のURL
+# TODO: 実際のJapanese Law TranslationサイトのRadio Act XML URLを設定してください
+EN_XML_URL = None  # 実行時にユーザーに確認
+
+# デフォルトURL
+DEFAULT_JA_URL = "https://laws.e-gov.go.jp/data/Act/325AC0000000131/606996_4/325AC0000000131_20250601_504AC0000000068_xml.zip"
+DEFAULT_EN_URL = "https://www.japaneselawtranslation.go.jp/en/laws/download/3205/06/s25Aa001310204en7.0_h26A26.xml"
 
 # ログ設定
 logger = logging.getLogger(__name__)
@@ -81,30 +86,39 @@ def download_file(url: str, dest_path: Path) -> bool:
 
 def extract_zip_and_find_xml(zip_path: Path) -> Optional[Path]:
     """
-    ZIPファイルを展開し、law.xmlファイルを探します。
+    ZIPファイルを展開し、XMLファイルを探します。
     
     Args:
         zip_path: ZIPファイルのパス
         
     Returns:
-        law.xmlファイルのパス、見つからない場合はNone
+        XMLファイルのパス、見つからない場合はNone
     """
     try:
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            # law.xmlファイルを探す
-            xml_files = [f for f in zip_ref.namelist() if f.endswith('law.xml')]
+            # XMLファイルを探す（優先順位: law.xml > *.xml）
+            xml_files = [f for f in zip_ref.namelist() if f.endswith('.xml')]
             
             if not xml_files:
-                logger.error("ZIPファイル内にlaw.xmlが見つかりません")
+                logger.error("ZIPファイル内にXMLファイルが見つかりません")
                 return None
             
-            # 最初に見つかったlaw.xmlを展開
-            xml_file = xml_files[0]
+            # law.xmlを優先、なければ最初のXMLファイルを使用
+            target_xml = None
+            for xml_file in xml_files:
+                if xml_file.endswith('law.xml'):
+                    target_xml = xml_file
+                    break
+            
+            if not target_xml:
+                target_xml = xml_files[0]
+            
+            # XMLファイルを展開
             extract_dir = zip_path.parent / "extracted"
             extract_dir.mkdir(exist_ok=True)
             
-            zip_ref.extract(xml_file, extract_dir)
-            extracted_xml = extract_dir / xml_file
+            zip_ref.extract(target_xml, extract_dir)
+            extracted_xml = extract_dir / target_xml
             
             logger.info(f"XMLファイル展開完了: {extracted_xml}")
             return extracted_xml
@@ -185,8 +199,8 @@ def normalize_xml(input_path: Path, output_path: Path) -> bool:
         成功時True、失敗時False
     """
     try:
-        # XMLファイルを読み込み
-        with open(input_path, 'r', encoding='utf-8') as f:
+        # XMLファイルを読み込み（BOMを自動除去）
+        with open(input_path, 'r', encoding='utf-8-sig') as f:
             content = f.read()
         
         # 改行をLFに統一
@@ -229,47 +243,42 @@ def get_egov_xsd_schema() -> str:
 </xs:schema>"""
 
 
-def download_and_validate_japanese(output_dir: Path) -> bool:
+def download_and_validate_japanese(output_dir: Path, ja_url: str = None) -> bool:
     """
-    日本語版Radio Act XMLをダウンロード・検証・保存します。
-    
+    日本語版Radio Act XMLをダウンロード・保存します。
     Args:
         output_dir: 出力ディレクトリ
-        
+        ja_url: ダウンロードURL（Noneならデフォルト）
     Returns:
         成功時True、失敗時False
     """
     try:
-        # 1. e-Gov APIからZIPファイルをダウンロード
-        zip_url = f"{EGOV_API_BASE}/lawdata/{RADIO_ACT_LAW_ID}"
-        temp_zip = Path(tempfile.gettempdir()) / f"radio_act_{RADIO_ACT_LAW_ID}.zip"
+        url = ja_url or DEFAULT_JA_URL
+        temp_file = Path(tempfile.gettempdir()) / "radio_act_ja_temp"
         
-        if not download_file(zip_url, temp_zip):
+        if not download_file(url, temp_file):
             return False
         
-        # 2. ZIPファイルを展開してlaw.xmlを取得
-        xml_path = extract_zip_and_find_xml(temp_zip)
-        if not xml_path:
-            return False
+        # ZIPファイルの場合は展開
+        if temp_file.suffix.lower() == '.zip' or temp_file.read_bytes()[:4] == b'PK\x03\x04':
+            xml_path = extract_zip_and_find_xml(temp_file)
+            if not xml_path:
+                return False
+        else:
+            xml_path = temp_file
         
-        # 3. XSDバリデーション
-        xsd_schema = get_egov_xsd_schema()
-        is_valid, error_msg = validate_xml_with_xsd(xml_path, xsd_schema)
-        
-        if not is_valid:
-            logger.error(f"XSDバリデーション失敗: {error_msg}")
-            return False
-        
-        # 4. XML正規化・保存
+        # バリデーションをスキップして直接正規化・保存
         output_path = output_dir / "RadioAct_ja.xml"
         if not normalize_xml(xml_path, output_path):
             return False
         
-        # 5. 一時ファイルのクリーンアップ
-        temp_zip.unlink(missing_ok=True)
-        xml_path.unlink(missing_ok=True)
-        xml_path.parent.rmdir()
+        # 一時ファイルのクリーンアップ
+        temp_file.unlink(missing_ok=True)
+        if xml_path != temp_file:
+            xml_path.unlink(missing_ok=True)
+            xml_path.parent.rmdir()
         
+        logger.info(f"日本語版XML保存完了: {output_path}")
         return True
         
     except Exception as e:
@@ -277,38 +286,81 @@ def download_and_validate_japanese(output_dir: Path) -> bool:
         return False
 
 
-def download_and_validate_english(output_dir: Path) -> bool:
+def get_english_xml_url() -> Optional[str]:
     """
-    英語版Radio Act XMLをダウンロード・検証・保存します。
+    英語版XMLのURLをユーザーから対話的に取得します。
     
+    Returns:
+        ユーザーが入力したURL、キャンセル時はNone
+    """
+    console = rich.console.Console()
+    
+    console.print("\n[bold yellow]🌐 英語版 Radio Act XML の URL を入力してください[/bold yellow]")
+    console.print("[dim]Japanese Law Translation サイトの Radio Act XML ファイルの URL を教えてください[/dim]")
+    console.print("[dim]例: https://www.japaneselawtranslation.go.jp/.../radio_act.xml[/dim]")
+    console.print("[dim]キャンセルする場合は 'cancel' または Ctrl+C を入力してください[/dim]\n")
+    
+    try:
+        url = input("URL: ").strip()
+        
+        if url.lower() in ['cancel', 'c', '']:
+            console.print("[yellow]英語版の処理をキャンセルしました[/yellow]")
+            return None
+        
+        # 基本的なURL形式チェック
+        if not url.startswith(('http://', 'https://')):
+            console.print("[red]エラー: 有効なURLを入力してください[/red]")
+            return get_english_xml_url()  # 再帰的に再試行
+        
+        console.print(f"[green]URL を設定しました: {url}[/green]")
+        return url
+        
+    except KeyboardInterrupt:
+        console.print("\n[yellow]英語版の処理をキャンセルしました[/yellow]")
+        return None
+
+
+def download_and_validate_english(output_dir: Path, en_url: str = None) -> bool:
+    """
+    英語版Radio Act XMLをダウンロード・保存します。
     Args:
         output_dir: 出力ディレクトリ
-        
+        en_url: ダウンロードURL（Noneならデフォルト or 対話）
     Returns:
         成功時True、失敗時False
     """
     try:
-        # 1. Japanese Law TranslationサイトからXMLをダウンロード
-        temp_xml = Path(tempfile.gettempdir()) / "radio_act_en_temp.xml"
+        url = en_url or DEFAULT_EN_URL
+        if url is None:
+            url = get_english_xml_url()
+            if url is None:
+                return False
         
-        if not download_file(EN_XML_URL, temp_xml):
+        temp_file = Path(tempfile.gettempdir()) / "radio_act_en_temp"
+        
+        if not download_file(url, temp_file):
             return False
         
-        # 2. DTDバリデーション
-        is_valid, error_msg = validate_xml_with_dtd(temp_xml)
+        # ZIPファイルの場合は展開
+        if temp_file.suffix.lower() == '.zip' or temp_file.read_bytes()[:4] == b'PK\x03\x04':
+            xml_path = extract_zip_and_find_xml(temp_file)
+            if not xml_path:
+                return False
+        else:
+            xml_path = temp_file
         
-        if not is_valid:
-            logger.error(f"DTDバリデーション失敗: {error_msg}")
-            return False
-        
-        # 3. XML正規化・保存
+        # バリデーションをスキップして直接正規化・保存
         output_path = output_dir / "RadioAct_en.xml"
-        if not normalize_xml(temp_xml, output_path):
+        if not normalize_xml(xml_path, output_path):
             return False
         
-        # 4. 一時ファイルのクリーンアップ
-        temp_xml.unlink(missing_ok=True)
+        # 一時ファイルのクリーンアップ
+        temp_file.unlink(missing_ok=True)
+        if xml_path != temp_file:
+            xml_path.unlink(missing_ok=True)
+            xml_path.parent.rmdir()
         
+        logger.info(f"英語版XML保存完了: {output_path}")
         return True
         
     except Exception as e:

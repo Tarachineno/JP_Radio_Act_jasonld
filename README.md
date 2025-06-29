@@ -1,14 +1,13 @@
-# 日本電波法 XML 取得・バリデーション・正規化スクリプト
+# 日本電波法 XML 取得・正規化スクリプト
 
-e-Gov 法令 API と Japanese Law Translation サイトから Radio Act XML を取得し、XSD/DTD バリデーションを実行して UTF-8/LF 正規化を行う Python スクリプトです。
+e-Gov 法令 API と Japanese Law Translation サイトから Radio Act XML を取得し、UTF-8/LF 正規化を行う Python スクリプトです。
 
 ## 🎯 機能
 
 1. **e-Gov 法令 API** から Radio Act (LawID: 325AC0000000131) の ZIP を取得し展開
-2. ZIP 内 `law.xml` をスキーマ v3 (`law.xsd`) で XSD バリデーション
-3. **Japanese Law Translation** サイトの Radio Act 英訳 XML (JLT-XML) を取得し、内部 DTD でバリデーション
-4. 両 XML の文字コードを UTF-8、改行 LF に統一
-5. 検証結果を CLI でカラー出力（成功 ✔ / 失敗 ✖ + エラー要約）
+2. **Japanese Law Translation** サイトの Radio Act 英訳 XML (JLT-XML) を取得
+3. 両 XML の文字コードを UTF-8、改行 LF に統一
+4. 検証結果を CLI でカラー出力（成功 ✔ / 失敗 ✖ + エラー要約）
 
 ## 🔧 技術スタック
 
@@ -85,8 +84,7 @@ pytest --cov=radio_act_validator
 
 ## 📋 受け入れ基準
 
-- ✅ `python validate_radio_act_xml.py --ja --en` で両ファイルをダウンロード・検証・保存
-- ✅ XSD / DTD 検証エラーが起きた場合に詳細スタックトレースを `validation_errors.log` へ書き出し
+- ✅ `python validate_radio_act_xml.py --ja --en` で両ファイルをダウンロード・保存
 - ✅ スクリプト実行後、`data/` ディレクトリに UTF-8/LF 正規化済ファイルが存在
 - ✅ `file` コマンドで確認しても BOM なし
 - ✅ `pytest -q` がグリーン

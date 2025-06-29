@@ -15,7 +15,8 @@ from radio_act_validator import (
     validate_xml_with_xsd,
     validate_xml_with_dtd,
     normalize_xml,
-    get_egov_xsd_schema
+    get_egov_xsd_schema,
+    get_english_xml_url
 )
 
 
@@ -73,15 +74,32 @@ class TestExtractZipAndFindXml:
             assert result.name == "law.xml"
             assert result.exists()
     
-    def test_extract_zip_without_law_xml(self):
-        """law.xmlを含まないZIPファイルのテスト"""
+    def test_extract_zip_with_other_xml(self):
+        """law.xml以外のXMLファイルを含むZIPファイルの展開テスト"""
+        # テスト用のZIPファイルを作成
         with tempfile.TemporaryDirectory() as temp_dir:
             zip_path = Path(temp_dir) / "test.zip"
             
-            # law.xmlを含まないZIPファイルを作成
+            # 簡易的なZIPファイルを作成
             import zipfile
             with zipfile.ZipFile(zip_path, 'w') as zip_ref:
                 zip_ref.writestr("other.xml", "<?xml version='1.0'?><root>test</root>")
+            
+            result = extract_zip_and_find_xml(zip_path)
+            
+            assert result is not None
+            assert result.name == "other.xml"
+            assert result.exists()
+    
+    def test_extract_zip_without_law_xml(self):
+        """XMLファイルを含まないZIPファイルのテスト"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            zip_path = Path(temp_dir) / "test.zip"
+            
+            # XMLファイルを含まないZIPファイルを作成
+            import zipfile
+            with zipfile.ZipFile(zip_path, 'w') as zip_ref:
+                zip_ref.writestr("other.txt", "test content")
             
             result = extract_zip_and_find_xml(zip_path)
             
@@ -185,6 +203,39 @@ class TestGetEgovXsdSchema:
         assert "<?xml version=" in schema
         assert "<xs:schema" in schema
         assert "Law" in schema
+
+
+class TestGetEnglishXmlUrl:
+    """get_english_xml_url関数のテスト"""
+    
+    @patch('builtins.input')
+    def test_get_english_xml_url_valid_input(self, mock_input):
+        """有効なURL入力のテスト"""
+        mock_input.return_value = "https://example.com/radio_act.xml"
+        
+        result = get_english_xml_url()
+        
+        assert result == "https://example.com/radio_act.xml"
+    
+    @patch('builtins.input')
+    def test_get_english_xml_url_cancel(self, mock_input):
+        """キャンセル入力のテスト"""
+        mock_input.return_value = "cancel"
+        
+        result = get_english_xml_url()
+        
+        assert result is None
+    
+    @patch('builtins.input')
+    def test_get_english_xml_url_invalid_url(self, mock_input):
+        """無効なURL入力のテスト"""
+        # 最初に無効なURL、次に有効なURL
+        mock_input.side_effect = ["invalid-url", "https://example.com/radio_act.xml"]
+        
+        result = get_english_xml_url()
+        
+        assert result == "https://example.com/radio_act.xml"
+        assert mock_input.call_count == 2
 
 
 if __name__ == "__main__":
