@@ -1,0 +1,5 @@
+xmlschema
+lxml
+requests
+rich
+pytest
