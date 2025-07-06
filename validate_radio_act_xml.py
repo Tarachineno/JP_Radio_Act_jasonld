@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-日本電波法 XML 取得・正規化スクリプト
+日本電波法 XML 取得・正規化・ELI変換スクリプト
 
 e-Gov 法令 API から Radio Act (LawID: 325AC0000000131) の XML を取得し、
-UTF-8/LF 正規化を行います。
+UTF-8/LF 正規化を行い、ELI形式に変換します。
 """
 
 import argparse
@@ -21,6 +21,8 @@ from radio_act_validator import (
     download_and_validate_english,
     setup_logging
 )
+from eli_converter import convert_to_eli
+from diff_checker import LawDiffChecker
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -46,6 +48,18 @@ def parse_arguments() -> argparse.Namespace:
         "--en", "--english", 
         action="store_true",
         help="英語版 Radio Act XML を取得・保存"
+    )
+    
+    parser.add_argument(
+        "--eli", "--eli-convert",
+        action="store_true",
+        help="XMLファイルをELI形式に変換"
+    )
+    
+    parser.add_argument(
+        "--diff", "--check-diff",
+        action="store_true",
+        help="法規データソースの差分を確認"
     )
     
     parser.add_argument(
@@ -92,9 +106,9 @@ def main() -> int:
     console = rich.console.Console()
     
     # 引数チェック
-    if not args.ja and not args.en:
+    if not args.ja and not args.en and not args.eli and not args.diff:
         console.print(
-            "[red]エラー: --ja または --en のいずれかを指定してください[/red]"
+            "[red]エラー: --ja、--en、--eli、または --diff のいずれかを指定してください[/red]"
         )
         return 1
     
@@ -133,6 +147,49 @@ def main() -> int:
         
         # 結果サマリー
         console.print(f"\n[bold]📊 処理結果: {success_count}/{total_count} 成功[/bold]")
+        
+        # ELI変換処理
+        if args.eli:
+            console.print("\n[bold yellow]🔄 ELI形式への変換を開始...[/bold yellow]")
+            
+            ja_xml_path = output_dir / "RadioAct_ja.xml"
+            en_xml_path = output_dir / "RadioAct_en.xml"
+            
+            if not ja_xml_path.exists() or not en_xml_path.exists():
+                console.print("[red]❌ ELI変換に必要なXMLファイルが見つかりません[/red]")
+                console.print("[yellow]💡 先に --ja --en オプションでXMLファイルを取得してください[/yellow]")
+                return 1
+            
+            if convert_to_eli(ja_xml_path, en_xml_path, output_dir):
+                console.print("[green]✅ ELI変換が完了しました[/green]")
+                console.print(f"[blue]📁 出力ファイル:[/blue]")
+                console.print(f"  - {output_dir}/RadioAct_structured.xml")
+                console.print(f"  - {output_dir}/RadioAct_eli.jsonld")
+            else:
+                console.print("[red]❌ ELI変換に失敗しました[/red]")
+                return 1
+        
+        # 差分確認処理
+        if args.diff:
+            console.print("\n[bold yellow]🔍 法規データソースの差分確認を開始...[/bold yellow]")
+            
+            # デフォルトURLを設定
+            ja_url = args.ja_url or "https://elaws.e-gov.go.jp/api/1/lawdata/325AC0000000131"
+            en_url = args.en_url or "https://www.japaneselawtranslation.go.jp/common/data/law/325AC0000000131.zip"
+            
+            # 差分確認実行
+            checker = LawDiffChecker(str(output_dir))
+            results = checker.check_all_diffs(ja_url, en_url)
+            
+            # 結果表示
+            checker.display_results(results)
+            
+            # 変更があった場合は終了コード1を返す
+            if any(result.has_changes for result in results):
+                console.print("[yellow]⚠️  変更が検出されました[/yellow]")
+                return 1
+            else:
+                console.print("[green]✅ 変更は検出されませんでした[/green]")
         
         if success_count == total_count:
             console.print("[green]🎉 すべての処理が正常に完了しました！[/green]")
