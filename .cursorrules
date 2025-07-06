@@ -1,0 +1,63 @@
+# Cursor IDE Project Rules for JP_Radio_Act_jasonld
+
+## Project Overview
+This project processes Japanese Radio Act XML data from e-Gov and Japanese Law Translation sources. It includes XML validation, normalization, JSON-LD conversion, and diff checking functionality.
+
+## Key Files and Their Purposes
+- `validate_radio_act_xml.py` - Main entry point for XML processing
+- `diff_checker.py` - Detects changes between downloads
+- `eli_converter.py` - Converts XML to ELI-compliant JSON-LD
+- `sparql_test.py` - SPARQL query testing
+- `radio_act_validator.py` - Core validation logic
+
+## Code Style Guidelines
+- Use descriptive variable names in English
+- Add type hints where possible
+- Include docstrings for functions and classes
+- Follow PEP 8 style guidelines
+- Use f-strings for string formatting
+
+## Testing Strategy
+- All new features should include tests in `tests/` directory
+- Run `pytest` to execute all tests
+- Use `pytest -v` for verbose output
+- Test coverage should be maintained
+
+## Common Commands
+```bash
+# Basic XML processing
+python validate_radio_act_xml.py --ja --en
+
+# With diff checking
+python validate_radio_act_xml.py --ja --en --diff
+
+# JSON-LD conversion
+python validate_radio_act_xml.py --ja --en --convert-jsonld
+
+# Run tests
+pytest
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+## Important Notes
+- The project requires internet connection for downloading XML files
+- English XML URL is currently a placeholder and needs to be updated
+- XSD schema validation may need adjustment for actual e-Gov schemas
+- First run of diff checker will treat all files as new
+
+## File Structure
+```
+JP_Radio_Act_jasonld/
+├── validate_radio_act_xml.py      # Main script
+├── diff_checker.py                # Diff checking
+├── eli_converter.py               # JSON-LD conversion
+├── sparql_test.py                 # SPARQL testing
+├── radio_act_validator.py         # Core validation
+├── requirements.txt               # Dependencies
+├── README.md                      # Documentation
+├── data/                          # Output directory
+├── tests/                         # Test files
+└── scripts/                       # CI/CD scripts
+``` 

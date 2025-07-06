@@ -1,0 +1,77 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Main Script",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/validate_radio_act_xml.py",
+            "args": [
+                "--ja",
+                "--en",
+                "--verbose"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Python: Diff Checker",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/validate_radio_act_xml.py",
+            "args": [
+                "--ja",
+                "--en",
+                "--diff",
+                "--verbose"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Python: JSON-LD Conversion",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/validate_radio_act_xml.py",
+            "args": [
+                "--ja",
+                "--en",
+                "--convert-jsonld",
+                "--verbose"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Python: SPARQL Test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/sparql_test.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ]
+}
